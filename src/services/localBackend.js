@@ -97,6 +97,7 @@ export const localDB = {
       plan_value: Number(payload.plan_value),
       used_coupon: Boolean(payload.used_coupon),
       coupon_value: Number(payload.coupon_value || 0),
+      expires_at: payload.expires_at || null,
       created_at: new Date().toISOString()
     }
     all.push(row)
@@ -115,7 +116,8 @@ export const localDB = {
       plan_id: payload.plan_id,
       plan_value: Number(payload.plan_value),
       used_coupon: Boolean(payload.used_coupon),
-      coupon_value: Number(payload.coupon_value || 0)
+      coupon_value: Number(payload.coupon_value || 0),
+      ...(payload.expires_at !== undefined ? { expires_at: payload.expires_at } : {})
     }
     write(KEYS.clients, all)
     return all[idx]

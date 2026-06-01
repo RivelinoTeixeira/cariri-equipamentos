@@ -73,7 +73,8 @@ export const clientsApi = {
           plan_id: payload.plan_id,
           plan_value: payload.plan_value,
           used_coupon: payload.used_coupon,
-          coupon_value: payload.coupon_value || 0
+          coupon_value: payload.coupon_value || 0,
+          ...(payload.expires_at !== undefined ? { expires_at: payload.expires_at } : {})
         })
         .select()
         .single()
@@ -92,7 +93,8 @@ export const clientsApi = {
           plan_id: payload.plan_id,
           plan_value: payload.plan_value,
           used_coupon: payload.used_coupon,
-          coupon_value: payload.coupon_value || 0
+          coupon_value: payload.coupon_value || 0,
+          ...(payload.expires_at !== undefined ? { expires_at: payload.expires_at } : {})
         })
         .eq('id', id)
         .select()

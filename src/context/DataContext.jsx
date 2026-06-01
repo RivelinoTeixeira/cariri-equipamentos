@@ -12,13 +12,27 @@ export const COST_PER_CLIENT = 10 // R$ 10,00 / cliente ativo
 export const COUPON_DISCOUNT = 5 // R$ 5,00 de desconto quando cliente usa cupom
 
 export const PLANS = [
-  { id: 'mensal_1', label: 'Mensal', value: 19.9 },
-  { id: 'mensal_2', label: 'Trimestral', value: 49.9 },
-  { id: 'anual', label: 'Anual', value: 149.9 }
+  { id: 'mensal_1', label: 'Mensal', value: 19.9, months: 1 },
+  { id: 'mensal_2', label: 'Trimestral', value: 49.9, months: 3 },
+  { id: 'anual', label: 'Anual', value: 149.9, months: 12 }
 ]
 
 export function planById(id) {
   return PLANS.find((p) => p.id === id)
+}
+
+// Calcula o proximo vencimento ao renovar.
+// Se ainda valido (vence no futuro), estende a partir do vencimento atual.
+// Se ja vencido / sem data, comeca a partir de hoje.
+export function computeNextExpiry(currentExpiry, planId) {
+  const plan = planById(planId)
+  const months = plan?.months || 1
+  const now = new Date()
+  const cur = currentExpiry ? new Date(currentExpiry) : null
+  const base = cur && cur.getTime() > now.getTime() ? cur : now
+  const next = new Date(base)
+  next.setMonth(next.getMonth() + months)
+  return next.toISOString()
 }
 
 export function DataProvider({ children }) {
@@ -62,6 +76,38 @@ export function DataProvider({ children }) {
   async function updateClient(id, payload) {
     const row = await clientsApi.update(user, id, payload)
     setClients((prev) => prev.map((c) => (c.id === id ? row : c)))
+  }
+
+  // Renova um cliente: estende vencimento, atualiza plano/valor/cupom
+  // se mudaram e (opcional) cria lancamento de receita.
+  async function renewClient(id, options) {
+    const current = clients.find((c) => c.id === id)
+    if (!current) throw new Error('Cliente nao encontrado.')
+
+    const newExpiry = computeNextExpiry(current.expires_at, options.plan_id)
+
+    const payload = {
+      name: current.name,
+      phone: current.phone,
+      plan_id: options.plan_id,
+      plan_value: options.plan_value,
+      used_coupon: options.used_coupon,
+      coupon_value: options.coupon_value || 0,
+      expires_at: newExpiry
+    }
+    const row = await clientsApi.update(user, id, payload)
+    setClients((prev) => prev.map((c) => (c.id === id ? row : c)))
+
+    if (options.register_income && options.plan_value > 0) {
+      const entryRow = await entriesApi.create(user, {
+        description: `Renovacao - ${current.name}`,
+        value: options.plan_value,
+        type: 'income'
+      })
+      setEntries((prev) => [entryRow, ...prev])
+    }
+
+    return row
   }
 
   async function removeClient(id) {
@@ -120,6 +166,7 @@ export function DataProvider({ children }) {
         metrics,
         addClient,
         updateClient,
+        renewClient,
         removeClient,
         addEntry,
         removeEntry,

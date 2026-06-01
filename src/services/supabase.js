@@ -26,11 +26,13 @@ create table if not exists public.clients (
   plan_value numeric not null,
   used_coupon boolean not null default false,
   coupon_value numeric not null default 0,
+  expires_at timestamptz,
   created_at timestamptz default now()
 );
 -- Se a tabela ja existir sem as colunas novas:
 -- alter table public.clients add column if not exists used_coupon boolean not null default false;
 -- alter table public.clients add column if not exists coupon_value numeric not null default 0;
+-- alter table public.clients add column if not exists expires_at timestamptz;
 
 create table if not exists public.entries (
   id uuid primary key default gen_random_uuid(),

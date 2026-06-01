@@ -5,11 +5,13 @@ export default function ResponsiveTable({
   columns,
   rows,
   emptyMessage = 'Nenhum registro encontrado.',
+  onRenew,
   onEdit,
   onDelete,
   rowKey = 'id'
 }) {
-  const hasActions = Boolean(onEdit || onDelete)
+  const hasActions = Boolean(onRenew || onEdit || onDelete)
+  const actionsCount = [onRenew, onEdit, onDelete].filter(Boolean).length
 
   if (!rows || rows.length === 0) {
     return (
@@ -19,6 +21,8 @@ export default function ResponsiveTable({
     )
   }
 
+  const renewBtnClasses =
+    'text-xs font-semibold text-nexus-success hover:bg-nexus-success/10 px-3 py-1.5 rounded-lg border border-nexus-success/40'
   const editBtnClasses =
     'text-xs font-semibold text-nexus-purple hover:bg-nexus-purple/10 px-3 py-1.5 rounded-lg border border-nexus-purple/40'
   const deleteBtnClasses =
@@ -39,7 +43,7 @@ export default function ResponsiveTable({
                   {c.label}
                 </th>
               ))}
-              {hasActions && <th className="w-40" />}
+              {hasActions && <th className="w-48" />}
             </tr>
           </thead>
           <tbody>
@@ -55,7 +59,15 @@ export default function ResponsiveTable({
                 ))}
                 {hasActions && (
                   <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2 flex-wrap">
+                      {onRenew && (
+                        <button
+                          onClick={() => onRenew(row)}
+                          className={renewBtnClasses}
+                        >
+                          Renovar
+                        </button>
+                      )}
                       {onEdit && (
                         <button
                           onClick={() => onEdit(row)}
@@ -101,7 +113,23 @@ export default function ResponsiveTable({
               ))}
             </div>
             {hasActions && (
-              <div className="mt-3 pt-3 border-t border-nexus-border grid grid-cols-2 gap-2">
+              <div
+                className={`mt-3 pt-3 border-t border-nexus-border grid gap-2 ${
+                  actionsCount === 3
+                    ? 'grid-cols-3'
+                    : actionsCount === 2
+                    ? 'grid-cols-2'
+                    : 'grid-cols-1'
+                }`}
+              >
+                {onRenew && (
+                  <button
+                    onClick={() => onRenew(row)}
+                    className={`${renewBtnClasses} w-full`}
+                  >
+                    Renovar
+                  </button>
+                )}
                 {onEdit && (
                   <button
                     onClick={() => onEdit(row)}
@@ -113,9 +141,7 @@ export default function ResponsiveTable({
                 {onDelete && (
                   <button
                     onClick={() => onDelete(row)}
-                    className={`${deleteBtnClasses} w-full ${
-                      !onEdit ? 'col-span-2' : ''
-                    }`}
+                    className={`${deleteBtnClasses} w-full`}
                   >
                     Excluir
                   </button>
