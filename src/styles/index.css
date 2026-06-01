@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Variaveis tematicas ----------
+ * Usamos RGB em formato "R G B" (sem virgulas, sem rgb())
+ * para que os modificadores de opacidade do Tailwind
+ * funcionem corretamente: bg-nexus-bg/80, text-nexus-muted/50 etc.
+ * --------------------------------------- */
+:root {
+  /* LIGHT (padrao quando NAO ha .dark no <html>) */
+  --nexus-bg: 241 242 246;       /* #F1F2F6 - cinza claro */
+  --nexus-surface: 248 249 251;  /* #F8F9FB - quase branco */
+  --nexus-card: 255 255 255;     /* #FFFFFF - branco puro */
+  --nexus-border: 226 229 234;   /* #E2E5EA - linha discreta */
+  --nexus-text: 17 17 19;        /* #111113 - texto principal */
+  --nexus-muted: 100 108 122;    /* #646C7A - texto secundario */
+  color-scheme: light;
+}
+
+.dark {
+  /* DARK (Nexus padrao) */
+  --nexus-bg: 11 11 12;          /* #0B0B0C */
+  --nexus-surface: 19 19 22;     /* #131316 */
+  --nexus-card: 26 26 31;        /* #1A1A1F */
+  --nexus-border: 38 38 48;      /* #262630 */
+  --nexus-text: 255 255 255;     /* #FFFFFF */
+  --nexus-muted: 156 163 175;    /* #9CA3AF */
+  color-scheme: dark;
+}
+
+/* ---------- Base global ---------- */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: rgb(var(--nexus-bg));
+  color: rgb(var(--nexus-text));
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Suporte a notch / barras Android */
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior-y: none;
+}
+
+/* Inputs em mobile: 16px evita auto-zoom no foco (Android/iOS Safari) */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Touch targets minimos no mobile */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  [role='button'],
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Scrollbar customizada (tematica) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: rgb(var(--nexus-surface));
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(var(--nexus-border));
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #7C3AED;
+}
+
+/* Selecao */
+::selection {
+  background: rgba(168, 85, 247, 0.35);
+  color: rgb(var(--nexus-text));
+}
+
+/* Tipografia auxiliar */
+.gradient-text {
+  background: linear-gradient(135deg, #a855f7 0%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Utilidade: safe-area no bottom */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
